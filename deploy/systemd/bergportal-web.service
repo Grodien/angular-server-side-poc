@@ -1,0 +1,34 @@
+[Unit]
+Description=Bergportal Web (Angular SSR)
+Documentation=https://github.com/your-org/bergportal
+After=network.target bergportal-api.service
+Wants=bergportal-api.service
+
+[Service]
+Type=simple
+User=bergportal
+Group=bergportal
+WorkingDirectory=/opt/bergportal/web
+
+# Environment variables (API base URL, API key, port) live outside the repo.
+EnvironmentFile=/etc/bergportal/web.env
+
+# Runs the built SSR server bundle produced by "ng build".
+ExecStart=/usr/bin/node dist/web/server/server.mjs
+
+Restart=on-failure
+RestartSec=5
+
+# --- Hardening ---
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/bergportal/web
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target

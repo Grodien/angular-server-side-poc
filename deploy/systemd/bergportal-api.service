@@ -1,0 +1,35 @@
+[Unit]
+Description=Bergportal API (Node.js/Express)
+Documentation=https://github.com/your-org/bergportal
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=bergportal
+Group=bergportal
+WorkingDirectory=/opt/bergportal/api
+
+# Environment variables (DB credentials, API key) live outside the repo.
+EnvironmentFile=/etc/bergportal/api.env
+
+ExecStart=/usr/bin/node src/server.js
+
+Restart=on-failure
+RestartSec=5
+
+# --- Hardening ---
+# The API only listens on loopback (see api.env HOST=127.0.0.1), so it is not
+# reachable from outside the host.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/bergportal/api
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target

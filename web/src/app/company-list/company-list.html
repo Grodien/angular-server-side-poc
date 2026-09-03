@@ -1,0 +1,108 @@
+<section class="companies">
+  <h1>Firmenverwaltung</h1>
+
+  @if (editing(); as current) {
+    <form class="company-form" method="post" [attr.action]="'/companies/' + current.id + '/update'">
+      <h2>Firma bearbeiten (#{{ current.id }})</h2>
+
+      <label>
+        Code*
+        <input type="text" name="code" [value]="current.code" required />
+      </label>
+      <label>
+        Kurzname
+        <input type="text" name="short_name" [value]="current.short_name ?? ''" />
+      </label>
+      <label>
+        Tenant-ID
+        <input type="number" name="tenant_id" [value]="current.tenant_id ?? ''" />
+      </label>
+
+      <div class="actions">
+        <button type="submit">Aktualisieren</button>
+        <button type="button" class="secondary" (click)="cancelEdit()">Abbrechen</button>
+      </div>
+    </form>
+  } @else {
+    <form class="company-form" method="post" action="/companies/create">
+      <h2>Neue Firma</h2>
+
+      <label>
+        Code*
+        <input type="text" name="code" required />
+      </label>
+      <label>
+        Kurzname
+        <input type="text" name="short_name" />
+      </label>
+      <label>
+        Tenant-ID
+        <input type="number" name="tenant_id" />
+      </label>
+
+      <div class="actions">
+        <button type="submit">Anlegen</button>
+      </div>
+    </form>
+  }
+
+  <h2>Firmen</h2>
+
+  <form class="search-form" method="get" action="/">
+    <label>
+      Suche nach Name
+      <input
+        type="search"
+        name="q"
+        [value]="query()"
+        placeholder="Code oder Kurzname…"
+      />
+    </label>
+    <div class="actions">
+      <button type="submit">Suchen</button>
+      @if (query()) {
+        <a class="secondary-link" href="/">Zurücksetzen</a>
+      }
+    </div>
+  </form>
+
+  @if (companies().length === 0) {
+    @if (query()) {
+      <p>Keine Firmen gefunden für „{{ query() }}“.</p>
+    } @else {
+      <p>Keine Firmen vorhanden.</p>
+    }
+  } @else {
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Code</th>
+          <th>Kurzname</th>
+          <th>Tenant-ID</th>
+          <th>Aktionen</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (company of companies(); track company.id) {
+          <tr>
+            <td>{{ company.id }}</td>
+            <td>{{ company.code }}</td>
+            <td>{{ company.short_name }}</td>
+            <td>{{ company.tenant_id }}</td>
+            <td class="row-actions">
+              <button type="button" (click)="edit(company)">Bearbeiten</button>
+              <form
+                method="post"
+                [attr.action]="'/companies/' + company.id + '/delete'"
+                onsubmit="return confirm('Firma wirklich löschen?');"
+              >
+                <button type="submit" class="danger">Löschen</button>
+              </form>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>
